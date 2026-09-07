@@ -151,16 +151,11 @@ enum TweakAnalyzer {
 private extension Data {
     func readUInt32LE(at offset: Int) -> UInt32 {
         guard offset + 4 <= count else { return 0 }
-        var value: UInt32 = 0
-        withUnsafeBytes { buffer in
-            _ = withUnsafeMutableBytes(of: &value) { destination in
-                destination.baseAddress!.copyMemory(
-                    from: buffer.baseAddress!.advanced(by: offset),
-                    byteCount: 4
-                )
-            }
-        }
-        return UInt32(littleEndian: value)
+        let base = startIndex + offset
+        return UInt32(self[base])
+            | (UInt32(self[base + 1]) << 8)
+            | (UInt32(self[base + 2]) << 16)
+            | (UInt32(self[base + 3]) << 24)
     }
 
     func readNullTerminatedString(at offset: Int) -> String? {

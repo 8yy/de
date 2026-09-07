@@ -306,8 +306,8 @@ extension SourceAppsTableRepresentableView { class Coordinator: NSObject, UITabl
                                 bundleID: entry.app.id,
                                 sourceID: nil,
                                 appName: entry.app.name,
-                                version: version?.version ?? entry.app.version,
-                                whatsNew: version?.localizedDescription
+                                version: entry.app.version,
+                                whatsNew: nil
                             )
                         )
                     }

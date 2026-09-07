@@ -77,7 +77,7 @@ struct TweaksView: View {
                 Text(.localized("Tweaks in the vault can be injected into any signed app and can automatically inject for the apps you choose."))
             }
 
-            NBSection {
+            Section {
                 Button {
                     _isExtractPresenting = true
                 } label: {
@@ -210,25 +210,25 @@ struct TweakDetailView: View {
     }
 
     var body: some View {
-        NBNavigationView(_tweakProxy.tweak.fileName, displayMode: .inline) {
+        NBNavigationView(tweakProxy.tweak.fileName, displayMode: .inline) {
             NBList {
                 NBSection(.localized("File")) {
-                    LabeledContent(.localized("Name"), value: _tweakProxy.tweak.fileName)
-                    LabeledContent(.localized("Type"), value: _tweakProxy.tweak.kind.uppercased())
+                    LabeledContent(.localized("Name"), value: tweakProxy.tweak.fileName)
+                    LabeledContent(.localized("Type"), value: tweakProxy.tweak.kind.uppercased())
                     LabeledContent(
                         .localized("Added"),
-                        value: _tweakProxy.tweak.addedAt.formatted(date: .abbreviated, time: .shortened)
+                        value: tweakProxy.tweak.addedAt.formatted(date: .abbreviated, time: .shortened)
                     )
 
                     Button {
-                        _renameText = (_tweakProxy.tweak.fileName as NSString).deletingPathExtension
+                        _renameText = (tweakProxy.tweak.fileName as NSString).deletingPathExtension
                         _isRenaming = true
                     } label: {
                         Label(.localized("Rename"), systemImage: "pencil")
                     }
 
                     Button(role: .destructive) {
-                        _library.remove(_tweakProxy.tweak)
+                        _library.remove(tweakProxy.tweak)
                         _dismiss()
                     } label: {
                         Label(.localized("Delete"), systemImage: "trash")
@@ -272,13 +272,13 @@ struct TweakDetailView: View {
         .alert(.localized("Rename"), isPresented: $_isRenaming) {
             TextField(.localized("Name"), text: $_renameText)
             Button(.localized("Rename")) {
-                _library.rename(_tweakProxy.tweak, displayName: _renameText)
+                _library.rename(tweakProxy.tweak, displayName: _renameText)
             }
             Button(.localized("Cancel"), role: .cancel) {}
         }
         .task {
             _analysis = await Task.detached(priority: .userInitiated) {
-                TweakAnalyzer.analyze(url: TweakLibrary.shared.fileURL(for: _tweakProxy.tweak))
+                TweakAnalyzer.analyze(url: TweakLibrary.shared.fileURL(for: tweakProxy.tweak))
             }.value
         }
     }
@@ -297,14 +297,14 @@ struct TweakDetailView: View {
 
     private var _folderBinding: Binding<String?> {
         Binding(
-            get: { _tweakProxy.tweak.folderID },
-            set: { _library.setFolder(_tweakProxy.tweak, folderID: $0) }
+            get: { tweakProxy.tweak.folderID },
+            set: { _library.setFolder(tweakProxy.tweak, folderID: $0) }
         )
     }
 
     @ViewBuilder
     private func _autoInjectSection() -> some View {
-        let rule = _tweakProxy.tweak.autoInject
+        let rule = tweakProxy.tweak.autoInject
 
         NBSection(.localized("Auto Inject")) {
             Picker(.localized("Mode"), selection: _modeBinding) {
@@ -316,7 +316,7 @@ struct TweakDetailView: View {
             if rule?.mode == .bundleList {
                 BundleListEditor(bundleIDs: rule?.bundleIDs ?? []) { bundleIDs in
                     _library.setAutoInject(
-                        _tweakProxy.tweak,
+                        tweakProxy.tweak,
                         rule: AutoInjectRule(mode: .bundleList, bundleIDs: bundleIDs)
                     )
                 }
@@ -328,15 +328,15 @@ struct TweakDetailView: View {
 
     private var _modeBinding: Binding<AutoInjectRule.Mode> {
         Binding(
-            get: { _tweakProxy.tweak.autoInject?.mode ?? .off },
+            get: { tweakProxy.tweak.autoInject?.mode ?? .off },
             set: { mode in
                 switch mode {
                 case .off:
-                    _library.setAutoInject(_tweakProxy.tweak, rule: nil)
+                    _library.setAutoInject(tweakProxy.tweak, rule: nil)
                 case .all:
-                    _library.setAutoInject(_tweakProxy.tweak, rule: AutoInjectRule(mode: .all, bundleIDs: []))
+                    _library.setAutoInject(tweakProxy.tweak, rule: AutoInjectRule(mode: .all, bundleIDs: []))
                 case .bundleList:
-                    _library.setAutoInject(_tweakProxy.tweak, rule: AutoInjectRule(mode: .bundleList, bundleIDs: []))
+                    _library.setAutoInject(tweakProxy.tweak, rule: AutoInjectRule(mode: .bundleList, bundleIDs: []))
                 }
             }
         )
@@ -411,7 +411,7 @@ struct TweakExtractionView: View {
     var body: some View {
         NBNavigationView(.localized("Extract Tweaks"), displayMode: .inline) {
             NBList {
-                NBSection {
+                Section {
                     Button {
                         _isPicking = true
                     } label: {

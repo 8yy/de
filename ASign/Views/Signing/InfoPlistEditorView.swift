@@ -31,7 +31,7 @@ struct InfoPlistEditorView: View {
                 Text(.localized("Top-level keys here are merged over the app's Info.plist after all other options are applied. Values are written as-is, so arrays and dictionaries work too."))
             }
 
-            NBSection {
+            Section {
                 Button {
                     _validate()
                 } label: {
@@ -49,7 +49,7 @@ struct InfoPlistEditorView: View {
             }
 
             if let error = _validationError {
-                NBSection {
+                Section {
                     Label(error, systemImage: "xmark.octagon")
                         .foregroundStyle(.red)
                         .font(.callout)

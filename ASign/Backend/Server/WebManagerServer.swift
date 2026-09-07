@@ -175,7 +175,7 @@ final class WebManagerServer {
         // One handler, every method the browser page and the WebDAV verbs need.
         let methods: [HTTPMethod] = [
             .GET, .POST, .PUT, .DELETE, .MOVE, .COPY,
-            .raw("PROPFIND"), .raw("MKCOL"), .raw("HEAD"),
+            .RAW("PROPFIND"), .RAW("MKCOL"), .RAW("HEAD"),
         ]
 
         for method in methods {
