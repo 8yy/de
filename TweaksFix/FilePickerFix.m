@@ -58,7 +58,7 @@ static void ASFixRelocateIntoContainer(NSURL *sourceURL) {
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     if ([self.originalDelegate respondsToSelector:@selector(documentPicker:didPickDocumentsAtURLs:)]) {
-        NSInteger mode = (NSInteger)[objc_getAssociatedObject(self, (__bridge const void *)kASFixModeKey) integerValue];
+        NSInteger mode = (NSInteger)[objc_getAssociatedObject(self, (const void *)kASFixModeKey) integerValue];
         for (NSURL *url in urls) {
             // Mode 1 = Open (UIDocumentPickerModeOpen legacy value). Only
             // relocate for open-style pickers; copy mode already gives the app
@@ -145,8 +145,8 @@ static void ASFixFilePickerInit(void) {
 
     ASFixPickerDelegateProxy *proxy = [[ASFixPickerDelegateProxy alloc] init];
     proxy.originalDelegate = delegate;
-    objc_setAssociatedObject(proxy, (__bridge const void *)kASFixModeKey, @(1), OBJC_ASSOCIATION_RETAIN);
-    objc_setAssociatedObject(self, (__bridge const void *)kASFixOriginalDelegateKey, proxy, OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(proxy, (const void *)kASFixModeKey, @(1), OBJC_ASSOCIATION_RETAIN);
+    objc_setAssociatedObject(self, (const void *)kASFixOriginalDelegateKey, proxy, OBJC_ASSOCIATION_RETAIN);
 
     [self as_fix_setDelegate:proxy];
 }
