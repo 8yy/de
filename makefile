@@ -1,18 +1,18 @@
-NAME := Ksign
+NAME := ASign
 PLATFORM := iphoneos
-SCHEMES := Ksign
+SCHEMES := ASign
 # Name of the built .app bundle and the produced .ipa. Kept separate from
-# SCHEMES so the Xcode scheme/target can stay "Ksign" while the output is
-# renamed. Must match PRODUCT_NAME in Ksign.xcodeproj/project.pbxproj.
+# SCHEMES so the Xcode scheme/target can stay "ASign" while the output is
+# renamed. Must match PRODUCT_NAME in ASign.xcodeproj/project.pbxproj.
 OUTPUT_NAME := ASign
-# Build output goes to $(TMPDIR)/Ksign by default (unchanged for local
+# Build output goes to $(TMPDIR)/ASign by default (unchanged for local
 # builds). CI can set DERIVED_DATA to a stable path so it can be cached
 # between runs, e.g. `DERIVED_DATA=$PWD/DerivedData make`.
 TMP := $(if $(DERIVED_DATA),$(DERIVED_DATA),$(TMPDIR)/$(NAME))
 STAGE := $(TMP)/stage
 APP := $(TMP)/Build/Products/Release-$(PLATFORM)
 
-.PHONY: all clean deps $(SCHEMES)
+.PHONY: all clean deps tweaks $(SCHEMES)
 
 all: $(SCHEMES)
 
@@ -21,14 +21,28 @@ clean:
 	rm -rf packages
 	rm -rf Payload
 
+# Loopback TLS identity for the fully-local install server. The app also
+# (re)downloads a fresh identity at runtime, so a failure here is not fatal.
 deps:
 	rm -rf deps
 	mkdir -p deps
-	python3 .github/scripts/fetch_backloop_certs.py deps
+	@python3 .github/scripts/fetch_backloop_certs.py deps || echo "warning: TLS cert fetch failed; the app will fetch a fresh identity at runtime"
 
-$(SCHEMES): deps
+# Builds the FilePickerFix dylib that can be injected into signed apps.
+# Kept outside the ASign/ source folder on purpose: a .m inside the
+# synchronized group would be compiled into the signer itself.
+tweaks:
+	mkdir -p deps
+	clang -arch arm64 -dynamiclib \
+		-objc -fobjc-arc \
+		-framework Foundation -framework UIKit \
+		-install_name "FilePickerFix.dylib" \
+		TweaksFix/FilePickerFix.m \
+		-o deps/FilePickerFix.dylib
+
+$(SCHEMES): deps tweaks
 	xcodebuild \
-	    -project Ksign.xcodeproj \
+	    -project ASign.xcodeproj \
 	    -scheme "$@" \
 	    -configuration Release \
 	    -arch arm64 \
@@ -58,6 +72,6 @@ $(SCHEMES): deps
 	rm -rf "$(STAGE)/Payload/$(OUTPUT_NAME).app/_CodeSignature"
 	rm -rf "$(STAGE)/Payload/$(OUTPUT_NAME).app/PlugIns/"*.appex/_CodeSignature 2>/dev/null || true
 	ln -sf "$(STAGE)/Payload" Payload
-	
+
 	mkdir -p packages
 	zip -r9 "packages/$(OUTPUT_NAME).ipa" Payload

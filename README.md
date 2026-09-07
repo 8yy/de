@@ -1,42 +1,58 @@
+# ASign
 
-<img src="https://github.com/user-attachments/assets/986892f9-c32f-448d-a24e-ba8659203fbf" height="200">
+The strongest, fastest on-device iOS IPA signer.
 
-# Ksign 
-[![GitHub Release](https://img.shields.io/github/v/release/nyasami/ksign?style=for-the-badge&color=3c94fc)](https://github.com/nyasami/ksign/releases/latest) 
-[![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/nyasami/ksign/total?style=for-the-badge&color=6bc563)](https://github.com/nyasami/ksign/releases)
+ASign is a complete signing workstation for iOS: import apps from anywhere,
+sign them with your own certificates, inject tweaks, automate updates, and
+install — all on-device, without a computer.
 
-Yet another codesigning app, have you ever wondered what if Feather and Esign had a child?
+Built on the Feather lineage, redesigned and extended with an automation
+engine, a tweak vault, a wireless Web Manager, encrypted backups, and a
+liquid-glass interface.
 
-## Why?
-Since Esign is end of service so people been moving to other signing apps, but Esign was a really big part of the community, so with the help of Feather as the base app, I tried to recreate Esign as close as possible so you guys can easier to get familiar and less app switching for smooth sideloading.
+## Features
 
-Another reason is this app was built specifically for Khoindvn to share his certificates, allowing more people to access to sideloading without even have to buy a certificate!
+- **Signing pipeline** — full IPA import, sign, and export powered by Zsign,
+  with APFS clonefile fast paths and batch signing.
+- **Signing options** — bundle identifier, display name, version, entitlements,
+  Info.plist overrides, keychain isolation, PPQ protection, injection paths,
+  extension targeting, appearance and minimum-OS rewrites, Liquid Glass
+  experiments, ElleKit substrate replacement, and more.
+- **Tweak Vault** — a persistent tweak library with folders, per-app
+  auto-inject rules, dependency analysis, and extraction from existing IPAs.
+- **Automation** — automatic update checks with per-app controls, background
+  signing queue, certificate self-heal (re-signs apps before their certificate
+  expires), and charging-only installs.
+- **Certificate health** — expiry rings, revocation checks, one-tap renew-all,
+  and per-app certificate pinning.
+- **App Store** — browse AltStore sources, version history, screenshots,
+  news, permissions, and one-tap downloads.
+- **Web Manager** — transfer apps, tweaks, and certificates to and from your
+  device over your local network from any browser.
+- **Files** — a full document browser with plist/hex/text editors, extraction,
+  and IPA repacking.
+- **Installation** — fully-local HTTPS server (itms-services), semi-local
+  mode, or direct device installation via a pairing file.
+- **Live Activities** — download and signing progress on the Lock Screen and
+  in the Dynamic Island, with pause/resume controls.
+- **Data** — encrypted backup and restore, storage manager, activity timeline,
+  rotating file logs.
+- **Security** — Face ID lock, revocation screening, constant-time authenticated
+  Web Manager.
 
-## Help
-You can create your Issue at [Issue](https://github.com/Nyasami/Ksign-public/issues), this will also be the place for you to request a new feature so feel free to make one!
+## Build
 
-You can also join Ksign Discord [here](https://discord.gg/sfbZfQzVdQ) for better communication.
+Requires Xcode 26 or newer.
 
-## Download
-Go to [Releases](https://github.com/Nyasami/Ksign-public/releases) and download the newest ipa from there.
+```sh
+make deps     # fetch loopback TLS identity for the install server
+make          # build packages/ASign.ipa (unsigned; ad-hoc signed)
+```
 
-## Star History
+The GitHub Actions workflow builds and publishes `ASign.ipa` on every push to
+`main`.
 
-<a href="https://www.star-history.com/?repos=nyasami%2Fksign&type=date&legend=top-left">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=nyasami/ksign&type=date&theme=dark&legend=top-left&sealed_token=qF8r8F35jlacPKoDFdro6gYpDDUbVGloo-UPsBBqrAufefIWUZ7MY_TmH4j_UB2ailJBO_OYzkYV-jye9GlGJR-PfMID-XHRW52SHl--bD976zJlaiDwOA" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=nyasami/ksign&type=date&legend=top-left&sealed_token=qF8r8F35jlacPKoDFdro6gYpDDUbVGloo-UPsBBqrAufefIWUZ7MY_TmH4j_UB2ailJBO_OYzkYV-jye9GlGJR-PfMID-XHRW52SHl--bD976zJlaiDwOA" />
-   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=nyasami/ksign&type=date&legend=top-left&sealed_token=qF8r8F35jlacPKoDFdro6gYpDDUbVGloo-UPsBBqrAufefIWUZ7MY_TmH4j_UB2ailJBO_OYzkYV-jye9GlGJR-PfMID-XHRW52SHl--bD976zJlaiDwOA" />
- </picture>
-</a>
+## License
 
-## Special thanks
-- Feather by [claration](https://github.com/claration/Feather)  
-
-- Product manager Khoindvn
-
-- And you! for using the app ❤️
-
-## Disclaimer
-
-This project is maintained here, on GitHub. Releases are distributed here, on GitHub. We do not currently have a project website outside of this repository. Please make sure to avoid any sites that host our software as they are often malicious and are there to mislead to user.
+GPL-3.0 — see [LICENSE](LICENSE). ASign builds on the work of the Feather
+contributors and the broader sideloading community.

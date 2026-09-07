@@ -1,0 +1,68 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build ASign
+    runs-on: macos-26
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Show Toolchain
+        run: |
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-version
+
+      - name: Build
+        run: |
+          make
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ASign-ipa
+          path: packages/ASign.ipa
+          if-no-files-found: error
+
+      - name: Update Beta Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          LATEST_OFFICIAL_TAG=$(git describe --tags --match "v*" --abbrev=0 2>/dev/null || echo "")
+          COMMIT_MSG=$(git log -1 --pretty=%B)
+          echo "## Commit: \`$COMMIT_MSG\` (${{ github.sha }})" >> release_notes.md
+          echo "### New in this build (compared to $LATEST_OFFICIAL_TAG):" >> release_notes.md
+
+          CHANGES=$(git log --pretty=format:"* %s (%h)" ${LATEST_OFFICIAL_TAG}..HEAD || true)
+
+          if [ -z "$CHANGES" ]; then
+            echo "* No code changes since $LATEST_OFFICIAL_TAG" >> release_notes.md
+          else
+            echo "$CHANGES" >> release_notes.md
+          fi
+
+          cat release_notes.md
+
+          gh release delete beta --cleanup-tag -y --repo "$GITHUB_REPOSITORY" || true
+
+          gh release create beta "packages/ASign.ipa" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "ASign Latest Build" \
+            --notes "$(cat release_notes.md)" \
+            --prerelease \
+            --target ${{ github.sha }}

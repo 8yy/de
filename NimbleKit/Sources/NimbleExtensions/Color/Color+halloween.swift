@@ -5,7 +5,7 @@
 //  The single source of truth for the Halloween theme.
 //
 //  Lives in NimbleExtensions rather than NimbleViews so that both the
-//  NimbleViews list wrappers and the Ksign app target can reach it without
+//  NimbleViews list wrappers and the ASign app target can reach it without
 //  either one importing the other. Adding a file here needs no .xcodeproj
 //  change — SPM picks up anything under Sources automatically.
 //
