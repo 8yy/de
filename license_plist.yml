@@ -19,10 +19,12 @@ manual:
     file: "Zsign/LICENSE"
 
   - name: "LiveContainer"
-    file: "Zsign/LICENSE_LC"
+    body: |-
+      MIT - arm64e slice fixup derived from LiveContainer
+      https://github.com/LiveContainer/LiveContainer
     
   - name: "ElleKit"
-    file: "LICENSE_EllEKIT"
+    file: "LICENSE_ELLEKIT"
 
 exclude:
   - swift-html-entities
