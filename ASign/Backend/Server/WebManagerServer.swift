@@ -105,8 +105,8 @@ final class WebManagerController: ObservableObject {
             guard result == 0 else { continue }
 
             let name = String(cString: hostname)
-            if current.pointee.ifa_name.map({ String(cString: $0 }).hasPrefix("en")) == true,
-               name.contains(".") {
+            let interfaceName = current.pointee.ifa_name.map { String(cString: $0) } ?? ""
+            if interfaceName.hasPrefix("en"), name.contains(".") {
                 return name
             }
             if name.contains(".") {
