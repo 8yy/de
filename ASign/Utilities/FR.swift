@@ -10,7 +10,7 @@ import CryptoKit
 import Security
 import OSLog
 import UIKit.UIImage
-import Zsign
+import ZsignC
 import NimbleJSON
 import AltSourceKit
 import IDeviceSwift
@@ -159,10 +159,10 @@ enum FR {
 		using provision: URL
 	) -> Bool {
 		defer {
-			password_check_fix_WHAT_THE_FUCK_free(provision.path)
+			password_check_fix_free(provision.path)
 		}
 		
-		password_check_fix_WHAT_THE_FUCK(provision.path)
+		password_check_fix(provision.path)
 		
 		if (!p12_password_check(key.path, password)) {
 			return false
