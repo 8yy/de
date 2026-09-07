@@ -13,6 +13,7 @@
 
 import Foundation
 import UIKit
+import SwiftUI
 
 @MainActor
 final class SelfUpdateManager: ObservableObject {

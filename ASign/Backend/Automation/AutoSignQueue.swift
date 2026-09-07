@@ -16,6 +16,7 @@ import Foundation
 import UIKit
 import CoreData
 import UserNotifications
+import SwiftUI
 
 // MARK: - Queue
 

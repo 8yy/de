@@ -20,6 +20,7 @@ import AltSourceKit
 import CoreData
 import UserNotifications
 import Network
+import SwiftUI
 
 // MARK: - Model
 
@@ -257,7 +258,25 @@ final class UpdateEngine: ObservableObject {
             }
         }
 
-        let library = Storage.shared.getLibraryApps()
+        let signedRequest: NSFetchRequest<Signed> = Signed.fetchRequest()
+        let importedRequest: NSFetchRequest<Imported> = Imported.fetchRequest()
+        let signed = (try? Storage.shared.context.fetch(signedRequest)) ?? []
+        let imported = (try? Storage.shared.context.fetch(importedRequest)) ?? []
+
+        struct LibraryEntry {
+            var identifier: String?
+            var version: String?
+            var uuid: String?
+            var isSigned: Bool
+            var name: String?
+        }
+        var library: [LibraryEntry] = []
+        for app in signed {
+            library.append(LibraryEntry(identifier: app.identifier, version: app.version, uuid: app.uuid, isSigned: true, name: app.name))
+        }
+        for app in imported {
+            library.append(LibraryEntry(identifier: app.identifier, version: app.version, uuid: app.uuid, isSigned: false, name: app.name))
+        }
         var found: [AppUpdate] = []
 
         for entry in library {

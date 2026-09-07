@@ -15,6 +15,7 @@ import Foundation
 import Vapor
 import Darwin
 import ZIPFoundation
+import SwiftUI
 
 @MainActor
 final class WebManagerController: ObservableObject {

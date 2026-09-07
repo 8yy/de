@@ -13,7 +13,9 @@
 //
 
 import Foundation
+import CoreData
 import CryptoKit
+import CommonCrypto
 
 struct BackupPayload: Codable {
     var format = "asign-backup"
@@ -133,10 +135,10 @@ enum BackupManager {
         let fileData = try Data(contentsOf: url)
 
         let plainData: Data
-        if fileData.starts(with: Data("ASIGNBK1".utf8)) {
+        if fileData.starts(with: "ASIGNBK1".data(using: .utf8)!) {
             guard let password, !password.isEmpty else { throw BackupError.cryptoFailure }
             plainData = try decrypt(fileData, password: password)
-        } else if fileData.starts(with: Data("ASIGNBK0".utf8)) {
+        } else if fileData.starts(with: "ASIGNBK0".data(using: .utf8)!) {
             plainData = fileData.dropFirst(8)
         } else {
             throw BackupError.invalidFormat
@@ -157,8 +159,7 @@ enum BackupManager {
 
         // Sources: re-add anything not already present.
         for urlString in payload.sources {
-            guard let url = URL(string: urlString) else { continue }
-            FR.handleSource(url) { _ in }
+            FR.handleSource(urlString) { }
         }
 
         // Certificates.
@@ -181,7 +182,9 @@ enum BackupManager {
             ) { _ in }
         }
 
-        ActivityLog.shared.add(.info, title: String.localized("Backup restored"), detail: nil)
+        DispatchQueue.main.async {
+            ActivityLog.shared.add(.info, title: String.localized("Backup restored"), detail: nil)
+        }
     }
 
     // MARK: Crypto
@@ -189,15 +192,15 @@ enum BackupManager {
     private static let _magic = "ASIGNBK1"
 
     private static func encrypt(_ data: Data, password: String) throws -> Data {
-        let salt = (0..<16).map { _ in UInt8.random(in: 0...255) }
+        let salt = Data((0..<16).map { _ in UInt8.random(in: 0...255) })
         let key = Self.deriveKey(password: password, salt: salt)
         let keySymmetric = SymmetricKey(data: key)
         let sealed = try AES.GCM.seal(data, using: keySymmetric).combined!
-        return Data(_magic.utf8) + Data(salt) + sealed
+        return _magic.data(using: .utf8)! + salt + sealed
     }
 
     private static func decrypt(_ data: Data, password: String) throws -> Data {
-        let magicLength = _magic.count
+        let magicLength = _magic.data(using: .utf8)!.count
         guard data.count > magicLength + 16 + 28 else { throw BackupError.corruptArchive }
 
         let salt = data.subdata(in: magicLength..<(magicLength + 16))

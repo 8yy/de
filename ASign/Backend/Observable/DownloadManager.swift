@@ -328,7 +328,8 @@ class DownloadManager: NSObject, ObservableObject {
     
     private func _reportPauseState() {
         guard #available(iOS 16.2, *) else { return }
-        KeepAliveActivityController.shared.report(.downloads, isPaused: downloads.isEmpty ? nil : isAnyPaused)
+        let paused: Bool? = downloads.isEmpty ? nil : isAnyPaused
+        KeepAliveActivityController.shared.report(.downloads, isPaused: paused)
     }
     
     func cancelDownload(_ download: Download) {
@@ -360,6 +361,44 @@ class DownloadManager: NSObject, ObservableObject {
         }
 }
 
+    // Sampler state lives per download; the dictionary is only touched on the
+    // session delegate queue.
+    private var _samplers: [String: SpeedSampler] = [:]
+    
+    private func _speedSampler(for download: Download) -> SpeedSampler {
+        if let sampler = _samplers[download.id] { return sampler }
+        let sampler = SpeedSampler()
+        _samplers[download.id] = sampler
+        return sampler
+    }
+    
+    /// Asymmetric EMA: fast rises, slow falls, so the reported speed feels
+    /// stable without lying about stalls.
+    struct SpeedSampler {
+        private var lastBytes: Int64 = 0
+        private var lastTime: Date?
+        private var ema: Double = 0
+        
+        mutating func sample(bytes: Int64, at time: Date) -> Double? {
+            guard let lastTime else {
+                self.lastTime = time
+                self.lastBytes = bytes
+                return nil
+            }
+            
+            let interval = time.timeIntervalSince(lastTime)
+            guard interval >= 0.5 else { return ema > 0 ? ema : nil }
+            
+            let bytesDelta = max(0, bytes - lastBytes)
+            let rate = Double(bytesDelta) / interval
+            
+            ema = ema == 0 ? rate : (rate * 0.35) + (ema * 0.65)
+            self.lastTime = time
+            self.lastBytes = bytes
+            return ema
+        }
+    }
+    
 extension DownloadManager: URLSessionDownloadDelegate {
         
         func handlePachageFile(
@@ -445,7 +484,9 @@ extension DownloadManager: URLSessionDownloadDelegate {
         // Exponentially-weighted speed sampling: weight the newest sample 0.3
         // so a single slow second doesn't make the whole display collapse.
         let now = Date()
-        let sample = _speedSampler(for: download).sample(bytes: totalBytesWritten, at: now)
+        var sampler = _speedSampler(for: download)
+        let sample = sampler.sample(bytes: totalBytesWritten, at: now)
+        _samplers[download.id] = sampler
         
         DispatchQueue.main.async {
             download.progress = totalBytesExpectedToWrite > 0
@@ -467,44 +508,6 @@ extension DownloadManager: URLSessionDownloadDelegate {
                     KeepAliveActivityController.shared.report(.downloads, speedText: sample.formattedSpeed)
                 }
             }
-        }
-    }
-    
-    // Sampler state lives per download; the dictionary is only touched on the
-    // session delegate queue.
-    private var _samplers: [String: SpeedSampler] = [:]
-    
-    private func _speedSampler(for download: Download) -> SpeedSampler {
-        if let sampler = _samplers[download.id] { return sampler }
-        let sampler = SpeedSampler()
-        _samplers[download.id] = sampler
-        return sampler
-    }
-    
-    /// Asymmetric EMA: fast rises, slow falls, so the reported speed feels
-    /// stable without lying about stalls.
-    struct SpeedSampler {
-        private var lastBytes: Int64 = 0
-        private var lastTime: Date?
-        private var ema: Double = 0
-        
-        mutating func sample(bytes: Int64, at time: Date) -> Double? {
-            guard let lastTime else {
-                self.lastTime = time
-                self.lastBytes = bytes
-                return nil
-            }
-            
-            let interval = time.timeIntervalSince(lastTime)
-            guard interval >= 0.5 else { return ema > 0 ? ema : nil }
-            
-            let bytesDelta = max(0, bytes - lastBytes)
-            let rate = Double(bytesDelta) / interval
-            
-            ema = ema == 0 ? rate : (rate * 0.35) + (ema * 0.65)
-            self.lastTime = time
-            self.lastBytes = bytes
-            return ema
         }
     }
     
