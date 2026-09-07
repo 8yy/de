@@ -461,6 +461,7 @@ final class KeepAliveActivityController {
 			$0.detail = value
 			$0.detailStartedAt = value == nil ? nil : Date()
 		}
+	}
 
 	// Download transfer rate, pre-formatted by the producer.
 	func report(_ owner: BackgroundAudioManager.Owner, speedText: String?) {
@@ -477,7 +478,6 @@ final class KeepAliveActivityController {
 			guard $0.isPaused != isPaused else { return }
 			$0.isPaused = isPaused
 		}
-	}
 	}
 
 	func clearReport(_ owner: BackgroundAudioManager.Owner) {

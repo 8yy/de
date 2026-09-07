@@ -14,8 +14,9 @@
 import Foundation
 import Vapor
 import Darwin
-import ZIPFoundation
 import SwiftUI
+import CoreData
+import ZIPFoundation
 
 @MainActor
 final class WebManagerController: ObservableObject {
@@ -23,7 +24,7 @@ final class WebManagerController: ObservableObject {
 
     @Published private(set) var isRunning = false
     @Published private(set) var port: Int = 8080
-    @Published private(set) var lastActivity: Date?
+    @Published var lastActivity: Date?
 
     @AppStorage("asign.webManager.enabled") private var _enabled: Bool = false
     @AppStorage("asign.webManager.username") private var _username: String = "asign"
@@ -172,7 +173,7 @@ final class WebManagerServer {
 
     private func _configure(_ app: Application) {
         // One handler, every method the browser page and the WebDAV verbs need.
-        let methods: [Request.Method] = [
+        let methods: [HTTPMethod] = [
             .GET, .POST, .PUT, .DELETE, .MOVE, .COPY,
             .raw("PROPFIND"), .raw("MKCOL"), .raw("HEAD"),
         ]

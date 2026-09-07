@@ -45,8 +45,10 @@ enum TweakExtractor {
                     try fm.removeItem(at: destination)
                 }
 
-                let entryData = try archive.extract(entry, bufferSize: 1024 * 1024)
-                try entryData.write(to: destination, options: .atomic)
+                let tempFile = fm.temporaryDirectory
+                    .appendingPathComponent("TweakExtract_\(UUID().uuidString)")
+                try archive.extract(entry, to: tempFile)
+                try fm.moveItem(at: tempFile, to: destination)
                 extracted.append(destination)
             }
         } catch {

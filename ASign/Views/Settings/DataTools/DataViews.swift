@@ -19,12 +19,12 @@ struct ActivityView: View {
     var body: some View {
         NBList(.localized("Activity")) {
             if _log.entries.isEmpty {
-                NBSection {
+                Section {
                     Text(.localized("Nothing has happened yet."))
                         .foregroundStyle(.secondary)
                 }
             } else {
-                NBSection {
+                Section {
                     ForEach(_log.entries) { entry in
                         HStack(spacing: 10) {
                             Image(systemName: entry.symbolName)
@@ -120,7 +120,7 @@ struct StorageView: View {
             }
 
             if let notice = _removalNotice {
-                NBSection {
+                Section {
                     Label(notice, systemImage: "checkmark.circle")
                         .foregroundStyle(.green)
                 }
@@ -170,7 +170,7 @@ struct BackupRestoreView: View {
             }
 
             if let errorText = _errorText {
-                NBSection {
+                Section {
                     Label(errorText, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.red)
                 }
@@ -239,7 +239,7 @@ struct CertHealthView: View {
 
     var body: some View {
         NBList(.localized("Certificate Health")) {
-            NBSection {
+            Section {
                 ForEach(Array(_certificates), id: \.objectID) { cert in
                     HStack(spacing: 12) {
                         ExpiryRingView(expiration: cert.expiration)
@@ -270,7 +270,7 @@ struct CertHealthView: View {
                 Text(.localized("The ring fills as the certificate approaches its expiration date."))
             }
 
-            NBSection {
+            Section {
                 Button {
                     _renewAll()
                 } label: {

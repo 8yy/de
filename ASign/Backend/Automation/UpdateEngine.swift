@@ -295,7 +295,7 @@ final class UpdateEngine: ObservableObject {
                 !_isSkipped(bundleID: bundleID, version: remoteVersion)
             else { continue }
 
-            guard let downloadURL = remoteApp.app.currentDownloadURL else { continue }
+            guard let downloadURL = remoteApp.app.currentDownloadUrl else { continue }
 
             found.append(
                 AppUpdate(

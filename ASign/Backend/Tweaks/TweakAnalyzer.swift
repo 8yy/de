@@ -136,22 +136,8 @@ enum TweakAnalyzer {
 
     private static func _scanStrings(into analysis: inout TweakAnalysis, data: Data) {
         // Last-resort substrate detection for fat/unknown binaries.
-        let needle = Array("CydiaSubstrate".utf8)
-        let bytes = [UInt8](data.prefix(4 * 1024 * 1024))
-        var found = false
-
-        if bytes.count > needle.count {
-            var index = 0
-            while index <= bytes.count - needle.count {
-                if bytes[index] == needle[0] {
-                    if Array(bytes[index..<(index + needle.count)]) == needle {
-                        found = true
-                        break
-                    }
-                }
-                index += 1
-            }
-        }
+        let prefix = data.prefix(4 * 1024 * 1024)
+        let found = prefix.range(of: Data("CydiaSubstrate".utf8)) != nil
 
         analysis.linksSubstrate = found
         if found {

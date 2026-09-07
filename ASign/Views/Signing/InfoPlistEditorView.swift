@@ -12,14 +12,14 @@ import SwiftUI
 import NimbleViews
 
 struct InfoPlistEditorView: View {
-    @Binding var overridesXML: String
+    @Binding var overridesXML: String?
     @State private var _editorText: String = ""
     @State private var _validationError: String?
     @State private var _isValid = true
 
     var body: some View {
         NBList(.localized("Info.plist Overrides")) {
-            NBSection {
+            Section {
                 TextEditor(text: $_editorText)
                     .font(.system(size: 12, design: .monospaced))
                     .frame(minHeight: 320)
@@ -57,15 +57,15 @@ struct InfoPlistEditorView: View {
             }
         }
         .onAppear {
-            if _editorText.isEmpty && !overridesXML.isEmpty {
-                _editorText = overridesXML
+            if _editorText.isEmpty, let saved = overridesXML, !saved.isEmpty {
+                _editorText = saved
             }
         }
         .toolbar {
             NBToolbarButton(.localized("Apply"), style: .text) {
                 _validate()
                 guard _isValid else { return }
-                overridesXML = _editorText
+                overridesXML = _editorText.isEmpty ? nil : _editorText
                 ASHaptic.success()
             }
         }

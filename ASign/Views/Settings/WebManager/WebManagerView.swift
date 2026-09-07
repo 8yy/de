@@ -16,7 +16,7 @@ struct WebManagerView: View {
 
     var body: some View {
         NBList(.localized("Web Manager")) {
-            NBSection {
+            Section {
                 Toggle(isOn: Binding(
                     get: { _controller.isRunning },
                     set: { _controller.setEnabled($0) }

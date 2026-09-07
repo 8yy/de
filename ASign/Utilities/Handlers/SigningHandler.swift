@@ -392,9 +392,12 @@ extension SigningHandler {
         guard let certificate = appCertificate else { return }
         
         let provision = Storage.shared.getFile(.provision, from: certificate)
-        let bundleID = _options.appIdentifier
-            ?? (Bundle(url: _movedAppPath ?? URL(fileURL: "/"))?.bundleIdentifier)
-            ?? ""
+        let bundleID: String
+        if let movedPath = _movedAppPath, let bundle = Bundle(url: movedPath) {
+            bundleID = _options.appIdentifier ?? (bundle.bundleIdentifier ?? "")
+        } else {
+            bundleID = _options.appIdentifier ?? ""
+        }
         guard !bundleID.isEmpty else { return }
         
         if let entitlementsURL = MachOEntitlements.entitlementsFile(

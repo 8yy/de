@@ -116,14 +116,14 @@ struct SelfUpdateView: View {
 
     var body: some View {
         NBList(.localized("Self Update")) {
-            NBSection {
+            Section {
                 HStack {
                     Image(systemName: "arrow.up.circle.fill")
                         .font(.title2)
                         .foregroundStyle(.tint)
                     VStack(alignment: .leading, spacing: 2) {
                         Text(.localized("Current Version"))
-                        Text("\(Bundle.main.version) (\(Bundle.main.build))")
+                        Text(Bundle.main.version)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
