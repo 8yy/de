@@ -2,7 +2,7 @@ name: Build & Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "asign-release" ]
   workflow_dispatch:
 
 permissions:
@@ -60,9 +60,10 @@ jobs:
 
           gh release delete beta --cleanup-tag -y --repo "$GITHUB_REPOSITORY" || true
 
-          gh release create beta "packages/ASign.ipa" \
+          gh release delete asign-v2.0.0 --cleanup-tag -y --repo "$GITHUB_REPOSITORY" 2>/dev/null || true
+
+          gh release create asign-v2.0.0 "packages/ASign.ipa" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "ASign Latest Build" \
+            --title "ASign 2.0.0" \
             --notes "$(cat release_notes.md)" \
-            --prerelease \
             --target ${{ github.sha }}
